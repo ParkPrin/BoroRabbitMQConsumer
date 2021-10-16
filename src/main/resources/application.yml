@@ -1,0 +1,7 @@
+spring:
+  rabbitmq:
+    ssl.enabled: true
+    host: ${MARKETBOM2_AWS_RABBITMQ_HOST}
+    port: ${MARKETBOM2_AWS_RABBITMQ_PORT}
+    username: ${MARKETBOM2_AWS_RABBITMQ_USERNAME}
+    password: ${MARKETBOM2_AWS_RABBITMQ_PASSWORD}
