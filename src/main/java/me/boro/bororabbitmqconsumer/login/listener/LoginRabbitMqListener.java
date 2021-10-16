@@ -1,8 +1,9 @@
-package me.boro.bororabbitmqconsumer.login.consumer;
+package me.boro.bororabbitmqconsumer.login.listener;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import me.boro.bororabbitmqconsumer.login.dto.LoginResult;
+import me.boro.bororabbitmqconsumer.login.service.LoginConsumerService;
 import org.springframework.amqp.AmqpRejectAndDontRequeueException;
 import org.springframework.amqp.core.ExchangeTypes;
 import org.springframework.amqp.rabbit.annotation.Argument;
@@ -14,6 +15,7 @@ import org.springframework.stereotype.Component;
 
 @Slf4j
 @Component
+@RequiredArgsConstructor
 public class LoginRabbitMqListener {
 
 	public static final String LOGIN_QUEUE_NAME = "boro.login.queue";
@@ -23,6 +25,8 @@ public class LoginRabbitMqListener {
 
 	public static final String LOGIN_EXCHANGE_DLX_NAME = "boro.login.exchange.dlx";
 	public static final String LOGIN_ROUTING_DLX_KEY = "boro.login.queue.dlx";
+
+	private final LoginConsumerService loginConsumerService;
 
 	private int index;
 
@@ -37,7 +41,6 @@ public class LoginRabbitMqListener {
 			)
 	)
 	public void processInvoice(LoginResult loginResult) throws Exception {
-		log.info("message.getBody()={}", loginResult.toString());
 
 		if (++index % 2 == 0) {
 			// 메시지 소비 실패.
@@ -46,7 +49,7 @@ public class LoginRabbitMqListener {
 			// Reject처리 후 DLQ로 보낼지 여부는 RabbitMQ Queue의 x-dead-letter-exchange(+ x-dead-letter-routing-key) 설정에 따라간다.
 			throw new AmqpRejectAndDontRequeueException("실패처리. Reject And Don't Requeue Exception");
 		}
-
+		loginConsumerService.dtoPrint(loginResult);
 		log.info("메시지 소비 성공");
 	}
 }
